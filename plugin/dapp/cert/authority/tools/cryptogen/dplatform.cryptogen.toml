@@ -1,0 +1,4 @@
+##    ，
+name = ["User"]
+##     ，  "auth_ecdsa", "auth_sm2"
+signType = "auth_sm2"

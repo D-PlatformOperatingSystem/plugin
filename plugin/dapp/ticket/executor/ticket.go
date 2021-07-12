@@ -1,0 +1,195 @@
+// Copyright D-Platform Corp. 2018 All Rights Reserved.
+// Use of this source code is governed by a BSD-style
+// license that can be found in the LICENSE file.
+
+package executor
+
+/*
+coins       exec。        。
+
+        ：
+
+EventTransfer ->
+*/
+
+//package none execer for unknow execer
+//all none transaction exec ok, execept nofee
+//nofee transaction will not pack into block
+
+import (
+	"fmt"
+
+	log "github.com/D-PlatformOperatingSystem/dpos/common/log/log15"
+	drivers "github.com/D-PlatformOperatingSystem/dpos/system/dapp"
+	"github.com/D-PlatformOperatingSystem/dpos/types"
+	ty "github.com/D-PlatformOperatingSystem/plugin/plugin/dapp/ticket/types"
+)
+
+var clog = log.New("module", "execs.ticket")
+var driverName = "ticket"
+
+// Init initial
+func Init(name string, cfg *types.DplatformOSConfig, sub []byte) {
+	drivers.Register(cfg, GetName(), newTicket, cfg.GetDappFork(driverName, "Enable"))
+	InitExecType()
+}
+
+//InitExecType ...
+func InitExecType() {
+	ety := types.LoadExecutorType(driverName)
+	ety.InitFuncList(types.ListMethod(&Ticket{}))
+}
+
+// GetName get name
+func GetName() string {
+	return newTicket().GetName()
+}
+
+// Ticket driver type
+type Ticket struct {
+	drivers.DriverBase
+}
+
+func newTicket() drivers.Driver {
+	t := &Ticket{}
+	t.SetChild(t)
+	t.SetExecutorType(types.LoadExecutorType(driverName))
+	return t
+}
+
+// GetDriverName ...
+func (t *Ticket) GetDriverName() string {
+	return driverName
+}
+
+func (t *Ticket) saveTicketBind(b *ty.ReceiptTicketBind) (kvs []*types.KeyValue) {
+	//
+	if len(b.OldMinerAddress) > 0 {
+		kv := &types.KeyValue{
+			Key:   calcBindMinerKey(b.OldMinerAddress, b.ReturnAddress),
+			Value: nil,
+		}
+		//tlog.Warn("tb:del", "key", string(kv.Key))
+		kvs = append(kvs, kv)
+	}
+
+	kv := &types.KeyValue{Key: calcBindReturnKey(b.ReturnAddress), Value: []byte(b.NewMinerAddress)}
+	//tlog.Warn("tb:add", "key", string(kv.Key), "value", string(kv.Value))
+	kvs = append(kvs, kv)
+	kv = &types.KeyValue{
+		Key:   calcBindMinerKey(b.GetNewMinerAddress(), b.ReturnAddress),
+		Value: []byte(b.ReturnAddress),
+	}
+	//tlog.Warn("tb:add", "key", string(kv.Key), "value", string(kv.Value))
+	kvs = append(kvs, kv)
+	return kvs
+}
+
+func (t *Ticket) delTicketBind(b *ty.ReceiptTicketBind) (kvs []*types.KeyValue) {
+	//    ，
+	kv := &types.KeyValue{
+		Key:   calcBindMinerKey(b.NewMinerAddress, b.ReturnAddress),
+		Value: nil,
+	}
+	kvs = append(kvs, kv)
+	if len(b.OldMinerAddress) > 0 {
+		//
+		kv := &types.KeyValue{Key: calcBindReturnKey(b.ReturnAddress), Value: []byte(b.OldMinerAddress)}
+		kvs = append(kvs, kv)
+		kv = &types.KeyValue{
+			Key:   calcBindMinerKey(b.OldMinerAddress, b.ReturnAddress),
+			Value: []byte(b.ReturnAddress),
+		}
+		kvs = append(kvs, kv)
+	} else {
+		//
+		kv := &types.KeyValue{Key: calcBindReturnKey(b.ReturnAddress), Value: nil}
+		kvs = append(kvs, kv)
+	}
+	return kvs
+}
+
+func (t *Ticket) saveTicket(ticketlog *ty.ReceiptTicket) (kvs []*types.KeyValue) {
+	if ticketlog.PrevStatus > 0 {
+		kv := delticket(ticketlog.Addr, ticketlog.TicketId, ticketlog.PrevStatus)
+		kvs = append(kvs, kv)
+	}
+	kvs = append(kvs, addticket(ticketlog.Addr, ticketlog.TicketId, ticketlog.Status))
+	return kvs
+}
+
+func (t *Ticket) delTicket(ticketlog *ty.ReceiptTicket) (kvs []*types.KeyValue) {
+	if ticketlog.PrevStatus > 0 {
+		kv := addticket(ticketlog.Addr, ticketlog.TicketId, ticketlog.PrevStatus)
+		kvs = append(kvs, kv)
+	}
+	kvs = append(kvs, delticket(ticketlog.Addr, ticketlog.TicketId, ticketlog.Status))
+	return kvs
+}
+
+func calcTicketKey(addr string, ticketID string, status int32) []byte {
+	key := fmt.Sprintf("LODB-ticket-tl:%s:%d:%s", addr, status, ticketID)
+	return []byte(key)
+}
+
+func calcBindReturnKey(returnAddress string) []byte {
+	key := fmt.Sprintf("LODB-ticket-bind:%s", returnAddress)
+	return []byte(key)
+}
+
+func calcBindMinerKey(minerAddress string, returnAddress string) []byte {
+	key := fmt.Sprintf("LODB-ticket-miner:%s:%s", minerAddress, returnAddress)
+	return []byte(key)
+}
+
+func calcBindMinerKeyPrefix(minerAddress string) []byte {
+	key := fmt.Sprintf("LODB-ticket-miner:%s", minerAddress)
+	return []byte(key)
+}
+
+func calcTicketPrefix(addr string, status int32) []byte {
+	key := fmt.Sprintf("LODB-ticket-tl:%s:%d", addr, status)
+	return []byte(key)
+}
+
+func addticket(addr string, ticketID string, status int32) *types.KeyValue {
+	kv := &types.KeyValue{}
+	kv.Key = calcTicketKey(addr, ticketID, status)
+	kv.Value = []byte(ticketID)
+	return kv
+}
+
+func delticket(addr string, ticketID string, status int32) *types.KeyValue {
+	kv := &types.KeyValue{}
+	kv.Key = calcTicketKey(addr, ticketID, status)
+	kv.Value = nil
+	return kv
+}
+
+// IsFriend check is fri
+func (t *Ticket) IsFriend(myexec, writekey []byte, tx *types.Transaction) bool {
+	clog.Error("ticket  IsFriend", "myex", string(myexec), "writekey", string(writekey))
+	//
+	return false
+}
+
+// CheckTx check tx
+func (t *Ticket) CheckTx(tx *types.Transaction, index int) error {
+	//index == -1 only when check in mempool
+	if index == -1 {
+		var action ty.TicketAction
+		err := types.Decode(tx.Payload, &action)
+		if err != nil {
+			return err
+		}
+		if action.Ty == ty.TicketActionMiner && action.GetMiner() != nil {
+			return ty.ErrMinerTx
+		}
+	}
+	return nil
+}
+
+// CheckReceiptExecOk return true to check if receipt ty is ok
+func (t *Ticket) CheckReceiptExecOk() bool {
+	return true
+}

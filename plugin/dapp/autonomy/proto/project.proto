@@ -1,0 +1,96 @@
+// Copyright D-Platform Corp. 2018 All Rights Reserved.
+// Use of this source code is governed by a BSD-style
+// license that can be found in the LICENSE file.
+
+syntax = "proto3";
+
+import "lcommon.proto";
+
+package types;
+
+message AutonomyProposalProject {
+    ProposalProject propProject = 1;
+    //
+    RuleConfig curRule = 2;
+    //
+    repeated string boards = 3;
+    //
+    VoteResult boardVoteRes = 4;
+    //
+    PublicVote pubVote = 5;
+    //
+    int32  status     = 6;
+    string address    = 7;
+    int64  height     = 8;
+    int32  index      = 9;
+    string proposalID = 10;
+}
+
+message ProposalProject {
+    //
+    int32 year  = 1;
+    int32 month = 2;
+    int32 day   = 3;
+
+    //
+    string firstStage   = 4;  //         hash
+    string lastStage    = 5;  //         hash
+    string production   = 6;  //
+    string description  = 7;  //
+    string contractor   = 8;  //
+    int64  amount       = 9;  //
+    string amountDetail = 10; //
+
+    //
+    string toAddr = 11; //
+
+    //
+    int64 startBlockHeight    = 12; //
+    int64 endBlockHeight      = 13; //
+    int64 realEndBlockHeight  = 14; //
+    int32 projectNeedBlockNum = 15; //            ，
+}
+
+message RevokeProposalProject {
+    string proposalID = 1;
+}
+
+message VoteProposalProject {
+    string proposalID = 1;
+    bool   approve    = 2;
+}
+
+message PubVoteProposalProject {
+    string   proposalID        = 1;
+    bool     oppose            = 2;
+    repeated string originAddr = 3;
+}
+
+message TerminateProposalProject {
+    string proposalID = 1;
+}
+
+// receipt
+message ReceiptProposalProject {
+    AutonomyProposalProject prev    = 1;
+    AutonomyProposalProject current = 2;
+}
+
+message LocalProposalProject {
+    AutonomyProposalProject propPrj = 1;
+    repeated string comments        = 2;
+}
+
+// query
+message ReqQueryProposalProject {
+    int32  status    = 1;
+    string addr      = 2;
+    int32  count     = 3;
+    int32  direction = 4;
+    int64  height    = 5;
+    int32  index     = 6;
+}
+
+message ReplyQueryProposalProject {
+    repeated AutonomyProposalProject propProjects = 1;
+}

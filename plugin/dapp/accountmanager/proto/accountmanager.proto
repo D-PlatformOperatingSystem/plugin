@@ -1,0 +1,153 @@
+syntax = "proto3";
+
+import "transaction.proto";
+
+package types;
+
+message Accountmanager {
+}
+
+message AccountmanagerAction {
+    oneof value {
+        //
+        Register register = 1;
+        //
+        ResetKey resetKey = 2;
+        //
+        Transfer transfer = 3;
+        //
+        Supervise supervise = 4;
+        //    ,
+        Apply   apply = 5;
+    }
+    int32 ty = 6;
+}
+
+
+//
+message Register {
+    string accountID = 1;
+    //    string addr = 2;
+}
+
+//
+message ResetKey {
+
+    string accountID = 1;
+    string addr = 2;
+}
+
+//
+message Apply {
+    string accountID = 1;
+    //  ， 1         , 2       ，
+    int32 op = 2;
+}
+
+
+//
+message Transfer {
+    //
+    Asset   asset = 1;
+    // from
+    string fromAccountID = 2;
+    // to
+    string toAccountID = 3;
+
+
+}
+
+//
+message Supervise {
+    //
+    repeated string accountIDs = 1;
+    //  ， 1   ，2   ，3     ,4
+    int32 op = 2;
+    //0  ,             ，
+    int32 level = 3;
+}
+
+message account{
+    //
+    string accountID = 1;
+    //
+    string addr = 2;
+    //
+    string prevAddr = 3;
+    //     0   ， 1    , 2     3,
+    int32  status = 4;
+    //     0  ,             ，
+    int32  level = 5;
+    //
+    int64  createTime = 6;
+    //
+    int64  expireTime = 7;
+    //
+    int64  lockTime = 8;
+    //
+    int64  index = 9;
+}
+
+message AccountReceipt{
+    account account = 1;
+}
+message ReplyAccountList {
+    repeated account accounts = 1;
+    string primaryKey = 2;
+}
+
+message TransferReceipt{
+    account FromAccount = 1;
+
+    account ToAccount = 2;
+
+    int64  index = 3;
+}
+//
+message SuperviseReceipt{
+    repeated account accounts = 1;
+    int32    op = 2;
+    int64  index = 3;
+
+}
+
+message QueryExpiredAccounts{
+    string primaryKey = 1;
+
+    //           ，
+    int64  expiredTime = 2;
+    //         ，    10
+    // 0  ，1  ，
+    int32 direction = 3;
+}
+
+message QueryAccountsByStatus{
+    //     1   ， 2    , 3
+    int32  status = 1;
+    //
+    string primaryKey = 3;
+    // 0  ，1  ，
+    int32 direction = 5;
+}
+
+message QueryAccountByID {
+    string accountID = 1;
+}
+
+message QueryAccountByAddr {
+    string addr = 1;
+}
+
+message QueryBalanceByID {
+    string accountID = 1;
+
+    Asset asset = 2;
+}
+
+message balance {
+    int64  balance = 1;
+    int64  frozen  = 2;
+}
+service accountmanager {
+
+}

@@ -1,0 +1,57 @@
+
+#tran to return addr in ticket
+[[TransferCase]]
+id = "trans"
+command = "send coins transfer -a 10 -t 16ERTbYtKKQ64wMthAY9J4La4nAiidG45A -k 12oupcayRT7LvaC4qW4avxsTE7U41cKSio"
+from = "12oupcayRT7LvaC4qW4avxsTE7U41cKSio"
+to = "16ERTbYtKKQ64wMthAY9J4La4nAiidG45A"
+amount = "10"
+checkItem = ["balance"]
+
+
+
+#send to unfreeze exec
+[[TransferCase]]
+id = "transUnfreeze"
+command = "send coins transfer -a 5 -t 15YsqAuXeEXVHgm6RVx4oJaAAnhtwqnu3H -k 16ERTbYtKKQ64wMthAY9J4La4nAiidG45A"
+from = "16ERTbYtKKQ64wMthAY9J4La4nAiidG45A"
+to = "15YsqAuXeEXVHgm6RVx4oJaAAnhtwqnu3H"
+amount = "5"
+checkItem = ["balance"]
+dep = ["trans"]
+
+
+
+[[UnfreezeCreateFix]]
+id = "createFix"
+command = "send unfreeze create fix_amount -a 0.01 -e coins -s dpos -b 12oupcayRT7LvaC4qW4avxsTE7U41cKSio -p 1 -t 2 -k 16ERTbYtKKQ64wMthAY9J4La4nAiidG45A"
+from = "16ERTbYtKKQ64wMthAY9J4La4nAiidG45A"
+to = "12oupcayRT7LvaC4qW4avxsTE7U41cKSio"
+totalAmount = "2"
+period = 1
+checkItem =["frozen", "unfreeze"]
+dep = ["transUnfreeze"]
+repeat = 2
+
+
+
+[[UnfreezeWithdraw]]
+id = "withdraw"
+command = "send unfreeze withdraw -k 12oupcayRT7LvaC4qW4avxsTE7U41cKSio"
+addr = "12oupcayRT7LvaC4qW4avxsTE7U41cKSio"
+checkItem = ["unfreeze"]
+dep = ["createFix"]
+
+
+[[UnfreezeTerminate]]
+id = "terminate"
+command = "send unfreeze terminate -k 16ERTbYtKKQ64wMthAY9J4La4nAiidG45A"
+addr = "16ERTbYtKKQ64wMthAY9J4La4nAiidG45A"
+checkItem = ["unfreeze"]
+dep = ["createFix", "withdraw"]
+
+
+
+
+
+

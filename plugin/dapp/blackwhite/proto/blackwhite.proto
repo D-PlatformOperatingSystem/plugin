@@ -1,0 +1,200 @@
+syntax = "proto3";
+
+import "transaction.proto";
+
+package types;
+
+message AddressResult {
+    string   addr             = 1;
+    int64    amount           = 2;
+    repeated bytes hashValues = 3;
+    string         showSecret = 4;
+}
+
+// order
+message BlackwhiteRound {
+    // txhash
+    string gameID = 1;
+    // create -> play(timeout) -> show -> done
+    int32 status = 2;
+    //
+    int64 playAmount = 3;
+    //
+    int32 playerCount = 4;
+    //
+    int32 curPlayerCount = 5;
+    //
+    int32 loop = 6;
+    //
+    int32 curShowCount = 7;
+    //
+    int64 createTime = 8;
+    //
+    int64 showTime = 9;
+    //
+    int64 timeout = 10;
+    //
+    string createAddr = 11;
+    //
+    string gameName = 12;
+    //
+    repeated AddressResult addrResult = 13;
+    //
+    repeated string winner = 14;
+    // block
+    int64 index = 15;
+}
+
+// actions
+message BlackwhiteAction {
+    oneof value {
+        BlackwhiteCreate      create      = 1;
+        BlackwhitePlay        play        = 2;
+        BlackwhiteShow        show        = 3;
+        BlackwhiteTimeoutDone timeoutDone = 4;
+    }
+    int32 ty = 6;
+}
+
+message BlackwhiteCreate {
+    int64  playAmount  = 1;
+    int32  playerCount = 2;
+    int64  timeout     = 3;
+    string gameName    = 4;
+}
+
+message BlackwhitePlay {
+    string   gameID           = 1;
+    int64    amount           = 2;
+    repeated bytes hashValues = 3;
+}
+
+message BlackwhiteShow {
+    string gameID = 1;
+    string secret = 2;
+}
+
+message BlackwhiteTimeoutDone {
+    string gameID = 1;
+}
+
+// logs
+message ReceiptBlackwhite {
+    BlackwhiteRound round = 1;
+}
+
+message ReceiptBlackwhiteStatus {
+    string gameID = 1;
+    int32  status = 2;
+    //
+    int32  prevStatus = 3;
+    string addr       = 4;
+    int64  index      = 5;
+}
+
+message ReqBlackwhiteRoundInfo {
+    string gameID = 1;
+}
+
+message ReplyBlackwhiteRoundInfo {
+    BlackwhiteRoundResult round = 1;
+}
+
+message ReqBlackwhiteRoundList {
+    //    status  ,status
+    int32 status = 1;
+    //    ，             game  ，    status，     ，
+    string address   = 2;
+    int32  count     = 3;
+    int32  direction = 4;
+    int64  index     = 5;
+}
+
+message ReplyBlackwhiteRoundList {
+    repeated BlackwhiteRoundResult round = 1;
+}
+
+message ReqLoopResult {
+    string gameID  = 1;
+    int32  loopSeq = 2;
+}
+
+message perLoopResult {
+    repeated string winers = 1;
+    repeated string losers = 2;
+}
+
+message ReplyLoopResults {
+    string   gameID                = 1;
+    repeated perLoopResult results = 2;
+}
+
+message BlackwhiteRoundResult {
+    // txhash
+    string gameID = 1;
+    // create -> play(timeout) -> show -> done
+    int32 status = 2;
+    //
+    int64 playAmount = 3;
+    //
+    int32 playerCount = 4;
+    //
+    int32 curPlayerCount = 5;
+    //
+    int32 loop = 6;
+    //
+    int32 curShowCount = 7;
+    //
+    int64 createTime = 8;
+    //
+    int64 showTime = 9;
+    //
+    int64 timeout = 10;
+    //
+    string createAddr = 11;
+    //
+    string gameName = 12;
+    //
+    repeated AddressResult addrResult = 13;
+    //
+    repeated string winner = 14;
+    // block
+    int64 index = 15;
+}
+
+message BlackwhiteCreateTxReq {
+    int64  PlayAmount  = 1;
+    int32  PlayerCount = 2;
+    int64  Timeout     = 3;
+    string GameName    = 4;
+    int64  Fee         = 5;
+}
+
+message BlackwhitePlayTxReq {
+    string   GameID           = 1;
+    int64    Amount           = 2;
+    repeated bytes HashValues = 3;
+    int64          Fee        = 4;
+}
+
+message BlackwhiteShowTxReq {
+    string GameID = 1;
+    string Secret = 2;
+    int64  Fee    = 3;
+}
+
+message BlackwhiteTimeoutDoneTxReq {
+    string GameID = 1;
+    int64  Fee    = 2;
+}
+
+service blackwhite {
+    // blackwhite
+    //
+    rpc Create(BlackwhiteCreate) returns (UnsignTx) {}
+    //
+    rpc Show(BlackwhiteShow) returns (UnsignTx) {}
+    //
+    rpc Play(BlackwhitePlay) returns (UnsignTx) {}
+    rpc TimeoutDone(BlackwhiteTimeoutDone) returns (UnsignTx) {}
+}

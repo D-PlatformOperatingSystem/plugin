@@ -1,0 +1,240 @@
+package test
+
+import (
+	"fmt"
+	"log"
+	"time"
+
+	"github.com/D-PlatformOperatingSystem/dpos/common/db"
+	"github.com/D-PlatformOperatingSystem/plugin/plugin/dapp/exchange/executor"
+	"github.com/golang/protobuf/proto"
+
+	"github.com/D-PlatformOperatingSystem/dpos/account"
+	"github.com/D-PlatformOperatingSystem/dpos/common/address"
+	"github.com/D-PlatformOperatingSystem/dpos/types"
+	"github.com/D-PlatformOperatingSystem/dpos/util"
+
+	"github.com/D-PlatformOperatingSystem/dpos/client"
+	"github.com/D-PlatformOperatingSystem/dpos/common"
+	"github.com/D-PlatformOperatingSystem/dpos/common/crypto"
+	"github.com/D-PlatformOperatingSystem/dpos/queue"
+	et "github.com/D-PlatformOperatingSystem/plugin/plugin/dapp/exchange/types"
+)
+
+//ExecCli ...
+type ExecCli struct {
+	ldb        db.KVDB
+	sdb        db.DB
+	height     int64
+	blockTime  int64
+	difficulty uint64
+	q          queue.Queue
+	cfg        *types.DplatformOSConfig
+	execAddr   string
+
+	accA  *account.DB //exec account
+	accA1 *account.DB //exec token account
+	accB  *account.DB
+	accB1 *account.DB
+	accC  *account.DB
+	accC1 *account.DB
+	accD  *account.DB
+	accD1 *account.DB
+}
+
+//Nodes ...
+var (
+	Nodes = []string{
+		"1KSBd17H7ZK8iT37aJztFB22XGwsPTdwE4",
+		"1JRNjdEqp4LJ5fqycUBm9ayCKSeeskgMKR",
+		"1NLHPEcbTWWxxU3dGUZBhayjrCHD3psX7k",
+		"1MCftFynyvG2F4ED5mdHYgziDxx6vDrScs",
+	}
+)
+
+//NewExecCli ...
+func NewExecCli() *ExecCli {
+	dir, sdb, ldb := util.CreateTestDB()
+	log.Println(dir)
+
+	cfg := types.NewDplatformOSConfig(types.GetDefaultCfgstring())
+	cfg.SetTitleOnlyForTest("dplatformos")
+
+	executor.Init(et.ExchangeX, cfg, nil)
+	total := 100000000 * types.Coin
+	accountA := &types.Account{
+		Balance: total,
+		Frozen:  0,
+		Addr:    Nodes[0],
+	}
+	accountB := &types.Account{
+		Balance: total,
+		Frozen:  0,
+		Addr:    Nodes[1],
+	}
+
+	accountC := &types.Account{
+		Balance: total,
+		Frozen:  0,
+		Addr:    Nodes[2],
+	}
+	accountD := &types.Account{
+		Balance: total,
+		Frozen:  0,
+		Addr:    Nodes[3],
+	}
+
+	execAddr := address.ExecAddress(et.ExchangeX)
+
+	accA, _ := account.NewAccountDB(cfg, "coins", "dpos", sdb)
+	accA.SaveExecAccount(execAddr, accountA)
+
+	accB, _ := account.NewAccountDB(cfg, "coins", "dpos", sdb)
+	accB.SaveExecAccount(execAddr, accountB)
+
+	accC, _ := account.NewAccountDB(cfg, "coins", "dpos", sdb)
+	accC.SaveExecAccount(execAddr, accountC)
+
+	accD, _ := account.NewAccountDB(cfg, "coins", "dpos", sdb)
+	accD.SaveExecAccount(execAddr, accountD)
+
+	accA1, _ := account.NewAccountDB(cfg, "token", "CCNY", sdb)
+	accA1.SaveExecAccount(execAddr, accountA)
+
+	accB1, _ := account.NewAccountDB(cfg, "token", "CCNY", sdb)
+	accB1.SaveExecAccount(execAddr, accountB)
+
+	accC1, _ := account.NewAccountDB(cfg, "token", "CCNY", sdb)
+	accC1.SaveExecAccount(execAddr, accountC)
+
+	accD1, _ := account.NewAccountDB(cfg, "token", "CCNY", sdb)
+	accD1.SaveExecAccount(execAddr, accountD)
+
+	q := queue.New("channel")
+	q.SetConfig(cfg)
+
+	return &ExecCli{
+		ldb:        ldb,
+		sdb:        sdb,
+		height:     1,
+		blockTime:  time.Now().Unix(),
+		difficulty: 1539918074,
+		q:          q,
+		cfg:        cfg,
+		execAddr:   execAddr,
+
+		accA:  accA,
+		accA1: accA1,
+		accB:  accB,
+		accB1: accB1,
+		accC:  accC,
+		accC1: accC1,
+		accD:  accD,
+		accD1: accD1,
+	}
+}
+
+//Send ...
+func (c *ExecCli) Send(tx *types.Transaction, hexKey string) ([]*types.ReceiptLog, error) {
+	var err error
+	tx, err = types.FormatTx(c.cfg, et.ExchangeX, tx)
+	if err != nil {
+		return nil, err
+	}
+
+	tx, err = signTx(tx, hexKey)
+	if err != nil {
+		return nil, err
+	}
+
+	exec := executor.NewExchange()
+	if err := exec.CheckTx(tx, int(1)); err != nil {
+		return nil, err
+	}
+
+	c.height++
+	c.blockTime += 10
+	c.difficulty++
+	api, _ := client.New(c.q.Client(), nil)
+	exec.SetAPI(api)
+	exec.SetStateDB(c.sdb)
+	exec.SetLocalDB(c.ldb)
+	exec.SetEnv(c.height, c.blockTime, c.difficulty)
+
+	receipt, err := exec.Exec(tx, int(1))
+	if err != nil {
+		return nil, err
+	}
+
+	for _, kv := range receipt.KV {
+		c.sdb.Set(kv.Key, kv.Value)
+	}
+	receiptDate := &types.ReceiptData{Ty: receipt.Ty, Logs: receipt.Logs}
+	set, err := exec.ExecLocal(tx, receiptDate, int(1))
+	if err != nil {
+		return nil, err
+	}
+
+	for _, kv := range set.KV {
+		c.ldb.Set(kv.Key, kv.Value)
+	}
+
+	//save to database
+	util.SaveKVList(c.sdb, set.KV)
+	return receipt.Logs, nil
+}
+
+//Query ...
+func (c *ExecCli) Query(fn string, msg proto.Message) ([]byte, error) {
+	api, _ := client.New(c.q.Client(), nil)
+	exec := executor.NewExchange()
+	exec.SetAPI(api)
+	exec.SetStateDB(c.sdb)
+	exec.SetLocalDB(c.ldb)
+	exec.SetEnv(c.height, c.blockTime, c.difficulty)
+	r, err := exec.Query(fn, types.Encode(msg))
+	if err != nil {
+		return nil, err
+	}
+	return types.Encode(r), nil
+}
+
+func signTx(tx *types.Transaction, hexPrivKey string) (*types.Transaction, error) {
+	signType := types.SECP256K1
+	c, err := crypto.New(types.GetSignName("", signType))
+	if err != nil {
+		return tx, err
+	}
+
+	bytes, err := common.FromHex(hexPrivKey[:])
+	if err != nil {
+		return tx, err
+	}
+
+	privKey, err := c.PrivKeyFromBytes(bytes)
+	if err != nil {
+		return tx, err
+	}
+
+	tx.Sign(int32(signType), privKey)
+	return tx, nil
+}
+
+//GetExecAccount ...
+func (c *ExecCli) GetExecAccount(addr string, exec string, symbol string) (*types.Account, error) {
+	//mavl-{coins}-{dpos}-exec-{26JvcBnNSE17fZhAd9JphBwQRQJaEpyHTp}:{1OmCaA6un9CFYEWPnGRi7uyXY1KhTJxJEc}
+	//mavl-{token}-{ccny}-exec-{26JvcBnNSE17fZhAd9JphBwQRQJaEpyHTp}:{1OmCaA6un9CFYEWPnGRi7uyXY1KhTJxJEc}
+	key := []byte(fmt.Sprintf("mavl-%s-%s-exec-%s:%s", exec, symbol, c.execAddr, addr))
+	bytes, err := c.sdb.Get(key)
+	if err != nil {
+		return nil, err
+	}
+
+	var acc types.Account
+	err = types.Decode(bytes, &acc)
+	if err != nil {
+		return nil, err
+	}
+
+	return &acc, nil
+}

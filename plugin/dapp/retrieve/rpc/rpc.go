@@ -1,0 +1,71 @@
+// Copyright D-Platform Corp. 2018 All Rights Reserved.
+// Use of this source code is governed by a BSD-style
+// license that can be found in the LICENSE file.
+
+package rpc
+
+import (
+	"context"
+
+	"github.com/D-PlatformOperatingSystem/dpos/types"
+	rt "github.com/D-PlatformOperatingSystem/plugin/plugin/dapp/retrieve/types"
+)
+
+func (c *channelClient) Backup(ctx context.Context, v *rt.BackupRetrieve) (*types.UnsignTx, error) {
+	backup := &rt.RetrieveAction{
+		Ty:    rt.RetrieveActionBackup,
+		Value: &rt.RetrieveAction_Backup{Backup: v},
+	}
+	cfg := c.GetConfig()
+	tx, err := types.CreateFormatTx(cfg, cfg.ExecName(rt.RetrieveX), types.Encode(backup))
+	if err != nil {
+		return nil, err
+	}
+	data := types.Encode(tx)
+	return &types.UnsignTx{Data: data}, nil
+}
+
+func (c *channelClient) Prepare(ctx context.Context, v *rt.PrepareRetrieve) (*types.UnsignTx, error) {
+	prepare := &rt.RetrieveAction{
+		Ty:    rt.RetrieveActionPrepare,
+		Value: &rt.RetrieveAction_Prepare{Prepare: v},
+	}
+	cfg := c.GetConfig()
+	tx, err := types.CreateFormatTx(cfg, cfg.ExecName(rt.RetrieveX), types.Encode(prepare))
+	if err != nil {
+		return nil, err
+	}
+
+	data := types.Encode(tx)
+	return &types.UnsignTx{Data: data}, nil
+}
+
+func (c *channelClient) Perform(ctx context.Context, v *rt.PerformRetrieve) (*types.UnsignTx, error) {
+	perform := &rt.RetrieveAction{
+		Ty:    rt.RetrieveActionPerform,
+		Value: &rt.RetrieveAction_Perform{Perform: v},
+	}
+	payload := types.Encode(perform)
+	cfg := c.GetConfig()
+	tx, err := types.CreateFormatTx(cfg, cfg.ExecName(rt.RetrieveX), payload)
+	if err != nil {
+		return nil, err
+	}
+
+	data := types.Encode(tx)
+	return &types.UnsignTx{Data: data}, nil
+}
+
+func (c *channelClient) Cancel(ctx context.Context, v *rt.CancelRetrieve) (*types.UnsignTx, error) {
+	cancel := &rt.RetrieveAction{
+		Ty:    rt.RetrieveActionCancel,
+		Value: &rt.RetrieveAction_Cancel{Cancel: v},
+	}
+	cfg := c.GetConfig()
+	tx, err := types.CreateFormatTx(cfg, cfg.ExecName(rt.RetrieveX), types.Encode(cancel))
+	if err != nil {
+		return nil, err
+	}
+	data := types.Encode(tx)
+	return &types.UnsignTx{Data: data}, nil
+}

@@ -1,0 +1,82 @@
+// Copyright D-Platform Corp. 2018 All Rights Reserved.
+// Use of this source code is governed by a BSD-style
+// license that can be found in the LICENSE file.
+
+syntax = "proto3";
+
+import "lcommon.proto";
+
+package types;
+
+message AutonomyProposalBoard {
+    ProposalBoard propBoard = 1;
+    //
+    RuleConfig curRule = 2;
+    //
+    ActiveBoard board = 3;
+    //
+    VoteResult voteResult = 4;
+    //
+    int32  status     = 5;
+    string address    = 6;
+    int64  height     = 7;
+    int32  index      = 8;
+    string proposalID = 9;
+}
+
+// action
+message ProposalBoard {
+    //
+    int32 year  = 1;
+    int32 month = 2;
+    int32 day   = 3;
+
+    //
+    bool update = 4;
+    //
+    repeated string boards = 5;
+
+    //
+    int64 startBlockHeight   = 6; //
+    int64 endBlockHeight     = 7; //
+    int64 realEndBlockHeight = 8; //
+}
+
+message RevokeProposalBoard {
+    string proposalID = 1;
+}
+
+message VoteProposalBoard {
+    string   proposalID        = 1;
+    bool     approve           = 2;
+    repeated string originAddr = 3;
+}
+
+message TerminateProposalBoard {
+    string proposalID = 1;
+}
+
+// receipt
+message ReceiptProposalBoard {
+    AutonomyProposalBoard prev    = 1;
+    AutonomyProposalBoard current = 2;
+}
+
+message LocalProposalBoard {
+    AutonomyProposalBoard propBd = 1;
+    repeated string comments     = 2;
+}
+
+// query
+message ReqQueryProposalBoard {
+    int32  status    = 1;
+    string addr      = 2;
+    int32  count     = 3;
+    int32  direction = 4;
+    int64  height    = 5;
+    int32  index     = 6;
+}
+
+message ReplyQueryProposalBoard {
+    repeated AutonomyProposalBoard propBoards = 1;
+}

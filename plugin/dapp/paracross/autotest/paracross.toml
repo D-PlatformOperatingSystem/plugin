@@ -1,0 +1,47 @@
+
+#paracross exec addr 1HPkPopVe3ERfvaAgedDtJQ792taZFEHCe
+#user.p.test.paracross exec addr 16zsMh7mvNDKPG6E9NVrPhw6zL93gWsTpR
+
+[[TokenPreCreateCase]]
+id = "tokenPre"
+command = "send token precreate -f 0.01 -i testToken -n testToken -s PT -a 12oupcayRT7LvaC4qW4avxsTE7U41cKSio -t 100000 -p 0.1 -k 12oupcayRT7LvaC4qW4avxsTE7U41cKSio"
+dep = ["transForPrecreate"]
+
+[[TokenFinishCreateCase]]
+id = "tokenFinish"
+command = "send token finish -a 12oupcayRT7LvaC4qW4avxsTE7U41cKSio -f 0.01 -s PT -k 0xc34b5d9d44ac7b754806f761d3d4d2c4fe5214f6b074c19f069c4f5c2a29c8cc"
+dep = ["tokenPre"]
+
+
+#send to token for precreate
+[[TransferCase]]
+id = "transForPrecreate"
+command = "send coins transfer -a 1 -t 12hpJBHybh1mSyCijQ2MQJPk7z7kZ7jnQa -k 12oupcayRT7LvaC4qW4avxsTE7U41cKSio"
+from = "12oupcayRT7LvaC4qW4avxsTE7U41cKSio"
+to = "12hpJBHybh1mSyCijQ2MQJPk7z7kZ7jnQa"
+amount = "1"
+checkItem = ["balance"]
+
+[[TransferCase]]
+id = "dposToExec"
+command = "send coins transfer -a 1 -t 1HPkPopVe3ERfvaAgedDtJQ792taZFEHCe -k 12oupcayRT7LvaC4qW4avxsTE7U41cKSio"
+from = "12oupcayRT7LvaC4qW4avxsTE7U41cKSio"
+to = "1HPkPopVe3ERfvaAgedDtJQ792taZFEHCe"
+amount = "1"
+checkItem = ["balance"]
+
+
+#send token to paracross
+[[TransferCase]]
+id = "tokenToExec"
+command = "send token send_exec -a 10 -s PT -e paracross -k 12oupcayRT7LvaC4qW4avxsTE7U41cKSio"
+from = "12oupcayRT7LvaC4qW4avxsTE7U41cKSio"
+to = "1HPkPopVe3ERfvaAgedDtJQ792taZFEHCe"
+amount = "10"
+checkItem = ["balance"]
+dep = ["tokenFinish"]
+
+
+
+
+

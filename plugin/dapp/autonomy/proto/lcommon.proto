@@ -1,0 +1,53 @@
+// Copyright D-Platform Corp. 2018 All Rights Reserved.
+// Use of this source code is governed by a BSD-style
+// license that can be found in the LICENSE file.
+
+syntax = "proto3";
+
+package types;
+
+message VoteResult {
+    //
+    int32 totalVotes = 1;
+    //
+    int32 approveVotes = 2;
+    //
+    int32 opposeVotes = 3;
+    //
+    bool pass = 4;
+}
+
+message PublicVote {
+    //
+    bool publicity = 1;
+    //
+    int32 totalVotes = 2;
+    //
+    int32 opposeVotes = 3;
+    //
+    bool pubPass = 4;
+}
+
+message VotesRecord {
+    repeated string address = 1;
+}
+
+message RuleConfig {
+    //         , %   ,
+    int32 boardApproveRatio = 1;
+    //
+    int32 pubOpposeRatio = 2;
+    //
+    int64 proposalAmount = 3;
+    //
+    int64 largeProjectAmount = 4;
+    //         （       ）
+    int32 publicPeriod = 5;
+}
+
+message ActiveBoard {
+    repeated string boards      = 1;
+    repeated string revboards   = 2;
+    int64           amount      = 3;
+    int64           startHeight = 4;
+}

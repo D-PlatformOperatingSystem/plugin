@@ -1,0 +1,345 @@
+syntax = "proto3";
+import "account.proto";
+package types;
+
+//////////////////////////////////////////////////////////////////////////////
+// message for multisig start/////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////
+//           ，   statedb ，          key
+// createaddr:
+// multisigaddr:
+// owners:             owner
+// DailyLimit:          ，  symbol   ，      ，
+// txCount:             withdraw
+// requiredweight:    withdraw       。
+message MultiSig {
+    string   createAddr                = 1;
+    string   multiSigAddr              = 2;
+    repeated Owner owners              = 3;
+    repeated DailyLimit dailyLimits    = 4;
+    uint64              txCount        = 5;
+    uint64              requiredWeight = 6;
+}
+
+//
+message ConfirmedOwner {
+    repeated Owner confirmedOwner = 1;
+}
+
+//         ，          data
+// txHash:           。   localdb ，  txhash
+message MultiSigTx {
+    uint64   txid                 = 1;
+    string   txHash               = 2;
+    bool     executed             = 3;
+    uint64   txType               = 4;
+    string   multiSigAddr         = 5;
+    repeated Owner confirmedOwner = 6;
+}
+// owner    ：owner    ，
+message Owner {
+    string ownerAddr = 1;
+    uint64 weight    = 2;
+}
+
+//   symbol   ，                  token,
+//         token：HYB   guodun           token：HYB
+// coins.dpos coins.guodun
+// 1:
+//   ：   symbol：DOM,token.symbol(  ：TEST)
+// guodun        symbol：guodun，token.symbol(  ：TEST)
+// 2:            ：
+// guodun          symbol：guodun，token.symbol(  ：TEST)
+//         symbol： coins.dom token.TEST (               symbol)
+
+//      ，          ，           。         0 ，
+// spentToday         。   dailyLimit   ，
+// lastDay          ，        spentToday    0，   lastDay
+message DailyLimit {
+    string symbol     = 1;
+    string execer     = 2;
+    uint64 dailyLimit = 3;
+    uint64 spentToday = 4;
+    int64  lastDay    = 5;
+}
+
+message SymbolDailyLimit {
+    string symbol     = 1;
+    string execer     = 2;
+    uint64 dailyLimit = 3;
+}
+
+// MultiSig        action
+message MultiSigAction {
+    oneof value {
+        MultiSigAccCreate        multiSigAccCreate        = 1;
+        MultiSigOwnerOperate     multiSigOwnerOperate     = 2;
+        MultiSigAccOperate       multiSigAccOperate       = 3;
+        MultiSigConfirmTx        multiSigConfirmTx        = 4; //
+        MultiSigExecTransferTo   multiSigExecTransferTo   = 5; //                ，Addr --->multiSigAddr
+        MultiSigExecTransferFrom multiSigExecTransferFrom = 6; //                ，multiSigAddr--->Addr
+    }
+    int32 Ty = 7;
+}
+
+//              ：          owners，
+message MultiSigAccCreate {
+    repeated Owner   owners         = 1;
+    uint64           requiredWeight = 2;
+    SymbolDailyLimit dailyLimit     = 3;
+}
+
+// MultiSigAccount  owner   ：add/del/replace/modify
+message MultiSigOwnerOperate {
+    string multiSigAccAddr = 1;
+    string oldOwner        = 2;
+    string newOwner        = 3;
+    uint64 newWeight       = 4;
+    uint64 operateFlag     = 5;
+}
+
+// MultiSigAccount     ：modify/add:SymbolDailyLimit,requiredweight
+//          ，        。
+message MultiSigAccOperate {
+    string           multiSigAccAddr   = 1;
+    SymbolDailyLimit dailyLimit        = 2;
+    uint64           newRequiredWeight = 3;
+    bool             operateFlag       = 4;
+}
+
+//               :    from     MultiSigAddr--->addr
+//    from
+// MultiSig   from   execname+symbol      to
+message MultiSigExecTransferFrom {
+    string symbol   = 1;
+    int64  amount   = 2;
+    string note     = 3;
+    string execname = 4;
+    string to       = 5;
+    string from     = 6;
+}
+//               : addr --->MultiSigAddr
+//    to
+// MultiSig        execname+symbol      to
+message MultiSigExecTransferTo {
+    string symbol   = 1;
+    int64  amount   = 2;
+    string note     = 3;
+    string execname = 4;
+    string to       = 5;
+}
+
+//      withdraw
+// multisigaccaddr:
+// transactionid:        withdraw     id
+message MultiSigConfirmTx {
+    string multiSigAccAddr = 1;
+    uint64 txId            = 2;
+    bool   confirmOrRevoke = 3;
+}
+
+// query   ：
+//   :
+//   :               ：     ，owners，weight  ，
+//   :            peding  executed   id
+//   :    txid     ：        owners
+//   :
+
+//
+message ReqMultiSigAccs {
+    int64 start = 1;
+    int64 end   = 2;
+}
+
+message ReplyMultiSigAccs {
+    repeated string address = 1;
+}
+
+//
+message ReqMultiSigAccInfo {
+    string multiSigAccAddr = 1;
+}
+
+//
+message ReplyMultiSigAccInfo {
+    string   createAddr                = 1;
+    string   multiSigAddr              = 2;
+    repeated Owner owners              = 3;
+    repeated DailyLimit dailyLimits    = 4;
+    uint64              txCount        = 5;
+    uint64              requiredWeight = 6;
+}
+
+//  txids         ，pending, executed
+message ReqMultiSigTxids {
+    string multiSigAddr = 1;
+    uint64 fromTxId     = 2;
+    uint64 toTxId       = 3;
+    bool   pending      = 4;
+    bool   executed     = 5;
+}
+message ReplyMultiSigTxids {
+    string   multiSigAddr = 1;
+    repeated uint64 txids = 2;
+}
+
+//  txid     ，       owner
+message ReqMultiSigTxInfo {
+    string multiSigAddr = 1;
+    uint64 txId         = 2;
+}
+
+message ReplyMultiSigTxInfo {
+    MultiSigTx multiSigTxInfo = 1;
+}
+
+//
+message ReqMultiSigAccUnSpentToday {
+    string multiSigAddr = 1;
+    string execer       = 2;
+    string symbol       = 3;
+}
+
+message ReplyUnSpentAssets {
+    repeated UnSpentAssets unSpentAssets = 3;
+}
+
+message UnSpentAssets {
+    Assets assets = 1;
+    uint64 amount = 2;
+}
+
+//       Receipt  :
+
+// TyLogMultiSigAccCreate     Receipt
+message ReceiptMultiSig {
+    string multiSigAddr = 1;
+}
+
+// owner   :
+// TyLogMultiSigOwnerAdd     = 10001 //  add owner：addr weight
+// TyLogMultiSigOwnerDel     = 10002 //  del owner：addr weight
+
+message ReceiptOwnerAddOrDel {
+    string multiSigAddr = 1;
+    Owner  owner        = 2;
+    bool   addOrDel     = 3;
+}
+
+// TyLogMultiSigOwnerModify  = 10003 //  modify owner：preweight  currentweight
+// TyLogMultiSigOwnerReplace = 10004 //  old owner   ：     owner  ：addr+weight
+message ReceiptOwnerModOrRep {
+    string multiSigAddr = 1;
+    Owner  prevOwner    = 2;
+    Owner  currentOwner = 3;
+    bool   modOrRep     = 4;
+}
+
+//         ：ReqWeight，AssetDailyLimit
+// TyLogMultiSigAccWeightModify     = 10005 //            ：preReqWeight curReqWeight
+message ReceiptWeightModify {
+    string multiSigAddr  = 1;
+    uint64 prevWeight    = 2;
+    uint64 currentWeight = 3;
+}
+// TyLogMultiSigAccDailyLimitAdd    = 10006 //  add DailyLimit：Symbol DailyLimit
+// TyLogMultiSigAccDailyLimitModify = 10007 //  modify DailyLimit：preDailyLimit  currentDailyLimit
+message ReceiptDailyLimitOperate {
+    string     multiSigAddr   = 1;
+    DailyLimit prevDailyLimit = 2;
+    DailyLimit curDailyLimit  = 3;
+    bool       addOrModify    = 4;
+}
+
+//        （           ）
+// TyLogMultiSigConfirmTx       = 10008 //       id，  owner  ：addr+weight
+// TyLogMultiSigConfirmTxRevoke = 10009 //         id，  owner  ：addr+weight
+message ReceiptConfirmTx {
+    MultiSigTxOwner multiSigTxOwner  = 1;
+    bool            confirmeOrRevoke = 2;
+}
+//     dailyLimit
+message ReceiptAccDailyLimitUpdate {
+    string     multiSigAddr   = 1;
+    DailyLimit prevDailyLimit = 2;
+    DailyLimit curDailyLimit  = 3;
+}
+//  MultiSigAcc          tx          owner
+message ReceiptMultiSigTx {
+    MultiSigTxOwner multiSigTxOwner = 1;
+    bool            prevExecuted    = 2;
+    bool            curExecuted     = 3;
+    bool            submitOrConfirm = 4;
+    string          txHash          = 5;
+    uint64          txType          = 6;
+}
+
+message ReceiptTxCountUpdate {
+    string multiSigAddr = 1;
+    uint64 curTxCount   = 2;
+}
+
+message MultiSigTxOwner {
+    string multiSigAddr   = 1;
+    uint64 txid           = 2;
+    Owner  confirmedOwner = 3;
+}
+
+//       ;
+// TyLogMultiSigExecTransfer = 10010
+//  ： from   MultiSig                 ExecTransfer ，     ExecFrozen
+//  ：  dplatformos/types    ReceiptExecAccountTransfer
+
+// TyLogMultiSigWithdraw     = 10011
+//  ：              MultiSig   TO   ExecTransferFrozen
+//  ：  dplatformos/types    ReceiptExecAccountTransfer
+
+message Uint64 {
+    uint64 data = 1;
+}
+
+//
+message AccountAssets {
+    string multiSigAddr = 1;
+    Assets assets       = 2;
+    int64  amount       = 3;
+}
+
+//
+message ReqAccAssets {
+    string multiSigAddr = 1;
+    Assets assets       = 2;
+    bool   isAll        = 3;
+}
+
+message ReplyAccAssets {
+    repeated AccAssets accAssets = 1;
+}
+
+//
+message AccAssets {
+    Assets  assets     = 1;
+    int64   recvAmount = 2;
+    Account account    = 3;
+}
+
+message Assets {
+    string execer = 1;
+    string symbol = 2;
+}
+
+//
+message AccAddress {
+    repeated string address = 1;
+}
+
+// owner
+message OwnerAttr {
+    string multiSigAddr = 1;
+    string ownerAddr    = 2;
+    uint64 weight       = 3;
+}
+
+message OwnerAttrs {
+    repeated OwnerAttr items = 1;
+}

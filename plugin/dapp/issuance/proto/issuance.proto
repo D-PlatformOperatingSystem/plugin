@@ -1,0 +1,180 @@
+syntax = "proto3";
+
+package types;
+
+//
+message Issuance {
+    string   issuanceId                        = 1;  //  ID,        ID
+    int64    totalBalance                      = 2;  //        (ccny)
+    int64    debtCeiling                       = 3;  //         (ccny)
+    int64    liquidationRatio                  = 4;  //
+    int64    collateralValue                   = 5;  //      (dpos)
+    int64    debtValue                         = 6;  //   ccny
+    repeated DebtRecord debtRecords            = 7;  //
+    repeated DebtRecord invalidRecords         = 8;  //
+    int32               status                 = 9;  //       ，
+    int64               latestLiquidationPrice = 10; //
+    int64               period                 = 11; //
+    int64               latestExpireTime       = 12; //
+    int64               createTime             = 13; //
+    int64               balance                = 14; //     ccny
+    string              issuerAddr             = 15; //
+}
+
+//
+message DebtRecord {
+    string accountAddr      = 1;  //
+    int64  startTime        = 2;  //
+    int64  collateralValue  = 3;  //     (dpos)
+    int64  collateralPrice  = 4;  //
+    int64  debtValue        = 5;  //    (ccny)
+    int64  liquidationPrice = 6;  //
+    int32  status           = 7;  //    ，
+    int64  liquidateTime    = 8;  //
+    int64  expireTime       = 9;  //
+    int32  preStatus        = 10; //       ，
+    string debtId           = 11; //  id
+    string issuId           = 12; //  id
+}
+
+//
+message IssuanceAssetPriceRecord {
+    int64 recordTime = 1; //
+    int64 dposPrice   = 2; // dpos
+}
+
+// action
+message IssuanceAction {
+    oneof value {
+        IssuanceCreate create = 1; //
+        IssuanceDebt   debt   = 2; //
+        IssuanceRepay  repay  = 3; //
+        IssuanceFeed   feed   = 4; //
+        IssuanceClose  close  = 5; //
+        IssuanceManage manage = 6; //
+    }
+    int32 ty = 10;
+}
+
+message IssuanceManage {
+    repeated string superAddrs = 1; //
+}
+
+//
+message IssuanceCreate {
+    int64 totalBalance     = 1; //
+    int64 debtCeiling      = 2; //         (ccny)
+    int64 liquidationRatio = 3; //
+    int64 period           = 4; //
+}
+
+//
+message IssuanceDebt {
+    string issuanceId = 1; //  ID
+    int64  value      = 2; //    (ccny)
+}
+
+//
+message IssuanceRepay {
+    string issuanceId = 1; //  ID
+    string debtId     = 2; //  ID
+}
+
+//
+message IssuanceFeed {
+    int32    collType     = 1; //       (1，dpos，2，btc，3，eth...)
+    repeated int64 price  = 2; //
+    repeated int64 volume = 3; //
+}
+
+//
+message IssuanceClose {
+    string issuanceId = 1; //  ID
+}
+
+// exec_local
+message ReceiptIssuance {
+    string issuanceId  = 1;
+    string accountAddr = 2;
+    string debtId      = 3;
+    int32  status      = 4;
+}
+
+// exec_local issuid
+message ReceiptIssuanceID {
+    string issuanceId = 1;
+    int32  status     = 2;
+}
+
+// exec_local
+message IssuanceRecords {
+    repeated ReceiptIssuance records = 1;
+}
+
+//   ID
+message ReqIssuanceInfo {
+    string issuanceId = 1;
+}
+
+//
+message RepIssuanceCurrentInfo {
+    int32  status           = 1;  //       ，
+    int64  totalBalance     = 2;  //       (ccny)
+    int64  debtCeiling      = 3;  //         (ccny)
+    int64  liquidationRatio = 4;  //
+    int64  balance          = 5;  //       (ccny)
+    int64  collateralValue  = 6;  //      (dpos)
+    int64  debtValue        = 7;  //   ccny
+    int64  period           = 8;  //
+    string issuId           = 9;  //  ID
+    int64  createTime       = 10; //
+}
+
+//   ID
+message ReqIssuanceInfos {
+    repeated string issuanceIds = 1;
+}
+
+//
+message RepIssuanceCurrentInfos {
+    repeated RepIssuanceCurrentInfo infos = 1;
+}
+
+//
+message ReqIssuanceByStatus {
+    int32  status     = 1;
+    string issuanceId = 2;
+}
+
+//     ID
+message RepIssuanceIDs {
+    repeated string IDs = 1;
+}
+
+//
+message ReqIssuanceRecords {
+    string issuanceId = 1;
+    string addr       = 2;
+    int32  status     = 3;
+    string debtId     = 4;
+}
+
+//
+message RepIssuanceRecords {
+    repeated DebtRecord records = 1;
+}
+
+//
+message RepIssuanceDebtInfo {
+    DebtRecord record = 1;
+}
+
+//
+message RepIssuancePrice {
+    int64 price = 1; //
+}
+
+//
+message RepIssuanceUserBalance {
+    int64 balance = 1; //
+}

@@ -1,0 +1,189 @@
+syntax = "proto3";
+
+import "blockchain.proto";
+
+package types;
+
+message BlockID {
+    bytes hash = 1;
+}
+
+message TendermintBitArray {
+    int32    bits         = 1;
+    repeated uint64 elems = 2;
+}
+
+message Vote {
+    bytes   validatorAddress = 1;
+    int32   validatorIndex   = 2;
+    int64   height           = 3;
+    int32   round            = 4;
+    int64   timestamp        = 5;
+    uint32  type             = 6;
+    BlockID blockID          = 7;
+    bytes   signature        = 8;
+    bool    useAggSig        = 9;
+}
+
+message TendermintCommit {
+    BlockID  blockID         = 1;
+    repeated Vote precommits = 2;
+    AggVote  aggVote         = 3;
+}
+
+message TendermintBlockInfo {
+    State           state    = 2;
+    Proposal        proposal = 3;
+    TendermintBlock block    = 4;
+}
+
+message BlockSize {
+    int32 maxBytes = 1;
+    int32 maxTxs   = 2;
+    int64 maxGas   = 3;
+}
+
+message TxSize {
+    int32 maxBytes = 1;
+    int64 maxGas   = 2;
+}
+
+message BlockGossip {
+    int32 blockPartSizeBytes = 1;
+}
+
+message EvidenceParams {
+    int64 maxAge = 1;
+}
+message ConsensusParams {
+    BlockSize      blockSize      = 1;
+    TxSize         txSize         = 2;
+    BlockGossip    blockGossip    = 3;
+    EvidenceParams evidenceParams = 4;
+}
+
+message Validator {
+    bytes address     = 1;
+    bytes pubKey      = 2;
+    int64 votingPower = 3;
+    int64 accum       = 4;
+}
+
+message ValidatorSet {
+    repeated Validator validators = 1;
+    Validator          proposer   = 2;
+}
+
+message State {
+    string          chainID                          = 1;
+    int64           lastBlockHeight                  = 2;
+    int64           lastBlockTotalTx                 = 3;
+    BlockID         lastBlockID                      = 4;
+    int64           lastBlockTime                    = 5;
+    ValidatorSet    validators                       = 6;
+    ValidatorSet    lastValidators                   = 7;
+    int64           lastHeightValidatorsChanged      = 8;
+    ConsensusParams consensusParams                  = 9;
+    int64           lastHeightConsensusParamsChanged = 10;
+    bytes           lastResultsHash                  = 11;
+    bytes           appHash                          = 12;
+}
+
+message TendermintBlockHeader {
+    string  chainID         = 1;
+    int64   height          = 2;
+    int64   round           = 3;
+    int64   time            = 4;
+    int64   numTxs          = 5;
+    BlockID lastBlockID     = 6;
+    int64   totalTxs        = 7;
+    bytes   lastCommitHash  = 8;
+    bytes   validatorsHash  = 9;
+    bytes   consensusHash   = 10;
+    bytes   appHash         = 11;
+    bytes   lastResultsHash = 12;
+    bytes   proposerAddr    = 13;
+}
+
+message TendermintBlock {
+    TendermintBlockHeader header     = 1;
+    Block                 data       = 2;
+    TendermintCommit      lastCommit = 4;
+}
+
+message Proposal {
+    int64   height     = 1;
+    int32   round      = 2;
+    int64   timestamp  = 3;
+    int32   POLRound   = 4;
+    BlockID POLBlockID = 5;
+    bytes   signature  = 6;
+    bytes   blockhash  = 7;
+}
+
+message NewRoundStepMsg {
+    int64 height                = 1;
+    int32 round                 = 2;
+    int32 step                  = 3;
+    int32 secondsSinceStartTime = 4;
+    int32 lastCommitRound       = 5;
+}
+
+message ValidBlockMsg {
+    int64 height    = 1;
+    int32 round     = 2;
+    bytes blockhash = 3;
+    bool  isCommit  = 4;
+}
+
+message ProposalPOLMsg {
+    int64              height           = 1;
+    int32              proposalPOLRound = 2;
+    TendermintBitArray proposalPOL      = 3;
+}
+
+message HasVoteMsg {
+    int64 height = 1;
+    int32 round  = 2;
+    int32 type   = 3;
+    int32 index  = 4;
+}
+
+message VoteSetMaj23Msg {
+    int64   height  = 1;
+    int32   round   = 2;
+    int32   type    = 3;
+    BlockID blockID = 4;
+}
+
+message VoteSetBitsMsg {
+    int64              height  = 1;
+    int32              round   = 2;
+    int32              type    = 3;
+    BlockID            blockID = 4;
+    TendermintBitArray votes   = 5;
+}
+
+message Heartbeat {
+    bytes validatorAddress = 1;
+    int32 validatorIndex   = 2;
+    int64 height           = 3;
+    int32 round            = 4;
+    int32 sequence         = 5;
+    bytes signature        = 6;
+}
+
+message IsHealthy {
+    bool isHealthy = 1;
+}
+
+message AggVote {
+    bytes   validatorAddress = 1;
+    TendermintBitArray validatorArray = 2;
+    int64   height           = 3;
+    int32   round            = 4;
+    int64   timestamp        = 5;
+    uint32  type             = 6;
+    BlockID blockID          = 7;
+    bytes   signature        = 8;
+}

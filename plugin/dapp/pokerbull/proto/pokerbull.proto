@@ -1,0 +1,195 @@
+syntax = "proto3";
+
+package types;
+
+//
+message PokerBull {
+    string   gameId              = 1;  //           txHash  gameId
+    int32    status              = 2;  // Start 1 -> Continue 2 -> Quit 3
+    int64    startTime           = 3;  //
+    string   startTxHash         = 4;  //      hash
+    int64    value               = 5;  //
+    PBPoker  poker               = 6;  //
+    repeated PBPlayer players    = 7;  //
+    int32             playerNum  = 8;  //
+    repeated PBResult results    = 9;  //
+    int64             index      = 10; //
+    int64             prevIndex  = 11; //
+    int64             quitTime   = 12; //
+    string            quitTxHash = 13; //      hash
+    string            dealerAddr = 14; //
+    bool              isWaiting  = 15; //
+    int32             preStatus  = 16; //  index
+    int32             round      = 17; //
+}
+
+//
+message PBHand {
+    repeated int32 cards    = 1; //   ，
+    int32          result   = 2; //     (  ：0，  1-9：1-9，   ：10)
+    string         address  = 3; //
+    bool           isWin    = 4; //
+    int32          leverage = 5; //
+}
+
+//
+message PBPlayer {
+    repeated PBHand hands   = 1; //
+    string          address = 2; //
+    int64           txHash  = 3; //       txhash
+    bool            ready   = 4; // continue   ，  ready
+}
+
+//
+message PBResult {
+    repeated PBHand hands          = 1; //           ，
+    string          winner         = 2; //
+    int32           leverage       = 3; //
+    string          dealer         = 4; //
+    int32           dealerLeverage = 5; //
+}
+
+//
+message PBPoker {
+    repeated int32 cards   = 1; // 52
+    int32          pointer = 2; //
+}
+
+//
+message PBGameAction {
+    oneof value {
+        PBGameStart start       = 1;
+        PBGameContinue continue = 2;
+        PBGameQuit  quit        = 3;
+        PBGameQuery query       = 4;
+        PBGamePlay  play        = 5;
+    }
+    int32 ty = 10;
+}
+
+//
+message PBGameStart {
+    int64 value     = 1;
+    int32 playerNum = 2;
+}
+
+//
+message PBGameContinue {
+    string gameId = 1;
+}
+
+//
+message PBGameQuit {
+    string gameId = 1;
+}
+
+//
+message PBGameQuery {
+    string gameId = 1;
+}
+
+//
+message PBGamePlay {
+    string   gameId         = 1; //  id
+    int32    round          = 2; //
+    int64    value          = 3; //
+    repeated string address = 4; //
+}
+
+//
+message QueryPBGameListByStatusAndPlayerNum {
+    int32 status    = 1;
+    int32 playerNum = 2;
+    int64 index     = 3;
+}
+
+//   value
+message PBGameRecord {
+    string gameId = 1;
+    int32  status = 2;
+    int64  index  = 3;
+}
+
+message PBGameIndexRecord {
+    string gameId = 1;
+    int64  index  = 2;
+}
+
+message PBGameRecords {
+    repeated PBGameRecord records = 1;
+}
+
+message PBGameIndexRecords {
+    repeated PBGameIndexRecord records = 1;
+}
+
+message QueryPBGameInfo {
+    string gameId = 1;
+    string addr   = 2;
+    int32  status = 3;
+    int64  index  = 4;
+}
+
+message ReplyPBGame {
+    PokerBull game = 1;
+}
+
+message QueryPBGameInfos {
+    repeated string gameIds = 1;
+}
+
+message ReplyPBGameList {
+    repeated PokerBull games = 1;
+}
+
+// QueryPBGameByRound   gameId
+message QueryPBGameByRound {
+    string gameId = 1;
+    int32  round  = 2;
+}
+
+// ReplyPBGameByRound
+message ReplyPBGameByRound {
+    string   gameId           = 1;
+    int32    status           = 2;
+    PBResult result           = 3;
+    bool     isWaiting        = 4;
+    int64    value            = 5;
+    repeated PBPlayer players = 6;
+    int64 return              = 7;
+}
+
+message ReceiptPBGame {
+    string   gameId           = 1;
+    int32    status           = 2;
+    string   addr             = 3;
+    int64    index            = 4;
+    int64    prevIndex        = 5;
+    int32    playerNum        = 6;
+    int64    value            = 7;
+    bool     isWaiting        = 8;
+    repeated string players   = 9;
+    int32           preStatus = 10;
+    int32           round     = 11;
+}
+
+message PBStartTxReq {
+    int64 value     = 1;
+    int32 playerNum = 2;
+    int64 fee       = 3;
+}
+
+message PBContinueTxReq {
+    string gameId = 1;
+    int64  fee    = 2;
+}
+
+message PBQuitTxReq {
+    string gameId = 1;
+    int64  fee    = 2;
+}
+
+message PBQueryReq {
+    string gameId = 1;
+    int64  fee    = 2;
+}

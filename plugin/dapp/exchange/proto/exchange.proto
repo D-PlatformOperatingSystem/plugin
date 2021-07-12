@@ -1,0 +1,151 @@
+syntax = "proto3";
+package types;
+
+message Exchange {}
+
+message ExchangeAction {
+    oneof value {
+        LimitOrder  limitOrder  = 1;
+        MarketOrder marketOrder = 2;
+        RevokeOrder revokeOrder = 3;
+    }
+    int32 ty = 6;
+}
+//
+message LimitOrder {
+    //
+    asset leftAsset = 1;
+    //
+    asset rightAsset = 2;
+    //
+    int64 price = 3;
+    //
+    int64 amount = 4;
+    //  ， 1  ，2
+    int32 op = 5;
+}
+
+//
+message MarketOrder {
+    //  1
+    asset leftAsset = 1;
+    //  2
+    asset rightAsset = 2;
+    //
+    int64 amount = 3;
+    //  ， 1  ，2
+    int32 op = 4;
+}
+
+//
+message RevokeOrder {
+    //
+    int64 orderID = 1;
+}
+//
+message asset {
+    string execer = 1;
+    string symbol = 2;
+}
+
+//
+message Order {
+    int64 orderID = 1;
+    oneof value {
+        LimitOrder  limitOrder  = 2;
+        MarketOrder marketOrder = 3;
+    }
+    //
+    int32 ty = 4;
+    //
+    int64 executed = 5;
+    //
+    int64 AVG_price = 6;
+    //
+    int64 balance = 7;
+    //  ,0    ordered， 1   completed， 2   revoked
+    int32 status = 8;
+    //
+    string addr = 9;
+    //
+    int64 updateTime = 10;
+    //
+    int64 index = 11;
+}
+
+//
+message QueryMarketDepth {
+    //  1
+    asset leftAsset = 1;
+    //  2
+    asset rightAsset = 2;
+    //  ， 1  ，2
+    int32 op = 3;
+    //
+    string primaryKey = 4;
+    //         ，    10 ,              20
+    int32 count = 5;
+}
+//
+message MarketDepth {
+    //  1
+    asset leftAsset = 1;
+    //  2
+    asset rightAsset = 2;
+    //
+    int64 price = 3;
+    //
+    int64 amount = 4;
+    //  ， 1  ，2
+    int32 op = 5;
+}
+//
+message MarketDepthList {
+    repeated MarketDepth list       = 1;
+    string               primaryKey = 2;
+}
+
+//         ,
+message QueryHistoryOrderList {
+    //  1
+    asset leftAsset = 1;
+    //  2
+    asset rightAsset = 2;
+    //
+    string primaryKey = 3;
+    //         ，    10 ,              20
+    int32 count = 4;
+    // 0  ，1  ，
+    int32 direction = 5;
+}
+
+//  orderID
+message QueryOrder {
+    int64 orderID = 1;
+}
+//    ，
+message QueryOrderList {
+    //      (   0,   ordered    )
+    int32 status = 1;
+    //      ，
+    string address = 2;
+    //
+    string primaryKey = 3;
+    //         ，    10 ,              20
+    int32 count = 4;
+    // 0  ，1  ，
+    int32 direction = 5;
+}
+//
+message OrderList {
+    repeated Order list       = 1;
+    string         primaryKey = 2;
+}
+
+// exchange
+message ReceiptExchange {
+    Order    order             = 1;
+    repeated Order matchOrders = 2;
+    int64          index       = 3;
+}
+service exchange {}

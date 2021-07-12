@@ -1,0 +1,325 @@
+syntax = "proto3";
+
+package types;
+
+// CandidatorInfo
+message CandidatorInfo {
+    bytes    pubkey           = 1; //
+    string   address          = 2; //
+    string   IP               = 3; //       IP
+    int64    votes            = 4; //
+    int64    status           = 5; //       ，0:  ,1:  ,2:
+    int64    preStatus        = 6;
+    int64    startTime        = 7;  //
+    int64    startHeight      = 8;  //
+    string   startTxHash      = 9;  //        hash
+    int64    startIndex       = 10; //        index
+    int64    index            = 11;
+    int64    preIndex         = 12;
+    repeated DposVoter voters = 13;
+}
+
+// DposVoter
+message DposVoter {
+    string fromAddr = 1;
+    bytes  pubkey   = 2; //
+    int64  votes    = 3; //         ，
+    int64  index    = 4;
+    int64  time     = 5;
+}
+
+// Candidator
+message Candidator {
+    bytes  pubkey  = 1; //
+    string address = 2; //
+    string IP      = 3; //       IP
+    int64  votes   = 4; //
+    int64  status  = 5; //       ，0:  ,1:  ,2:
+}
+
+// DposCandidatorRegist   Dpos    ，          ，  ：10000
+message DposCandidatorRegist {
+    string pubkey  = 1; //
+    string address = 2; //
+    string IP      = 3; //       IP
+}
+
+// DposCandidatorCancelRegist   Dpos    ，
+message DposCandidatorCancelRegist {
+    string pubkey  = 1; //
+    string address = 2; //
+}
+
+// DposVote  Dpos
+message DposVote {
+    string fromAddr = 1;
+    string pubkey   = 2; //
+    int64  votes    = 3; //         ，
+}
+
+// DposCancelVote    Dpos
+message DposCancelVote {
+    string pubkey = 1; //
+    int64  index  = 3;
+}
+
+// DposVoteAction DposVote
+message DposVoteAction {
+    oneof value {
+        DposCandidatorRegist       regist          = 1;
+        DposCandidatorCancelRegist cancelRegist    = 2;
+        DposCandidatorRegist       reRegist        = 3;
+        DposVote                   vote            = 4;
+        DposCancelVote             cancelVote      = 5;
+        CandidatorQuery            candidatorQuery = 6;
+        DposVoteQuery              voteQuery       = 7;
+        DposVrfMRegist             registVrfM      = 8;
+        DposVrfRPRegist            registVrfRP     = 9;
+        DposVrfQuery               vrfQuery        = 10;
+        DposCBInfo                 recordCB        = 11;
+        DposCBQuery                cbQuery         = 12;
+        TopNCandidatorRegist       registTopN      = 13;
+        TopNCandidatorsQuery       topNQuery       = 14;
+    }
+    int32 ty = 15;
+}
+
+// CandidatorQuery
+message CandidatorQuery {
+    repeated string pubkeys = 1; //
+    int32           topN    = 2; // topN
+    int32           ty      = 3; // 1:       ，2： topN
+}
+
+// JSONCandidator     Json
+message JSONCandidator {
+    string pubkey  = 1; //
+    string address = 2; //
+    string IP      = 3; //       IP
+    int64  votes   = 4; //
+    int64  status  = 5; //       ，0:  ,1:  ,2:
+}
+
+// CandidatorReply
+message CandidatorReply {
+    repeated JSONCandidator candidators = 1; //
+}
+
+// DposVoteQuery
+message DposVoteQuery {
+    repeated string pubkeys = 1; //       ，    ，     ，  ，
+    string          addr    = 2; //
+}
+
+// JSONDposVoter Json
+message JSONDposVoter {
+    string fromAddr = 1;
+    string pubkey   = 2; //
+    int64  votes    = 3; //         ，
+    int64  index    = 4;
+    int64  time     = 5;
+}
+
+// DposVoteReply
+message DposVoteReply {
+    repeated JSONDposVoter votes = 1; //
+}
+
+// ReceiptCandicator
+message ReceiptCandicator {
+    int64          Index        = 1;
+    bytes          pubkey       = 2;
+    string         address      = 3;
+    int64          status       = 4;
+    int64          preStatus    = 5;
+    bool           statusChange = 6;
+    int32          voteType     = 7;
+    DposVoter      vote         = 8;
+    string         fromAddr     = 9;
+    CandidatorInfo candInfo     = 10;
+    int64          time         = 11;
+}
+
+// DposVrfM VrfM
+message DposVrfM {
+    int64 Index       = 1;
+    bytes pubkey      = 2;
+    int64 cycle       = 3;
+    int64 height      = 4;
+    bytes m           = 5; // vrf
+    int64 time        = 6;
+    int64 cycleStart  = 7;
+    int64 cycleMiddle = 8;
+    int64 cycleStop   = 9;
+}
+
+// DposVrfRP VrfRP
+message DposVrfRP {
+    int64 Index       = 1;
+    bytes pubkey      = 2;
+    int64 cycle       = 3;
+    int64 height      = 4;
+    bytes m           = 5; // vrf
+    bytes r           = 6; // vrf hash
+    bytes p           = 7; // vrf hash proof
+    int64 time        = 8;
+    int64 cycleStart  = 9;
+    int64 cycleMiddle = 10;
+    int64 cycleStop   = 11;
+}
+
+// DposVrfMRegist VrfM
+message DposVrfMRegist {
+    string pubkey = 1;
+    int64  cycle  = 2;
+    string m      = 3; // vrf
+}
+
+// DposVrfRPRegist VrfRP
+message DposVrfRPRegist {
+    string pubkey = 1;
+    int64  cycle  = 2;
+    string r      = 3; // vrf hash
+    string p      = 4; // vrf hash proof
+}
+
+// ReceiptVrf vrf
+message ReceiptVrf {
+    int64 Index       = 1;
+    bytes pubkey      = 2;
+    int64 status      = 3;
+    int64 cycle       = 4;
+    int64 height      = 5;
+    bytes m           = 6;
+    bytes r           = 7;
+    bytes p           = 8;
+    int64 time        = 9;
+    int64 cycleStart  = 10;
+    int64 cycleMiddle = 11;
+    int64 cycleStop   = 12;
+}
+
+// VrfInfo vrf
+message VrfInfo {
+    int64 Index  = 1;
+    bytes pubkey = 2;
+    int64 cycle  = 4;
+    int64 height = 5;
+    bytes m      = 6;
+    bytes r      = 7;
+    bytes p      = 8;
+    int64 time   = 9;
+}
+
+// DposVrfQuery vrf
+message DposVrfQuery {
+    repeated string pubkeys   = 1;
+    int64           ty        = 2;
+    int64           timestamp = 3;
+    int64           cycle     = 4;
+}
+
+// JSONVrfInfo json   vrf
+message JSONVrfInfo {
+    int64  Index  = 1;
+    string pubkey = 2;
+    int64  cycle  = 4;
+    int64  height = 5;
+    string m      = 6;
+    string r      = 7;
+    string p      = 8;
+    int64  time   = 9;
+}
+
+// DposVrfReply vrf
+message DposVrfReply {
+    repeated JSONVrfInfo vrf = 1;
+}
+
+// DposCycleBoundaryInfo cycle
+message DposCycleBoundaryInfo {
+    int64 cycle      = 1;
+    int64 stopHeight = 2;
+    bytes stopHash   = 3;
+    bytes pubkey     = 4;
+    bytes signature  = 5;
+}
+
+// DposCBInfo cycle
+message DposCBInfo {
+    int64  cycle      = 1;
+    int64  stopHeight = 2;
+    string stopHash   = 3;
+    string pubkey     = 4;
+    string signature  = 5;
+}
+
+// DposCBQuery cycle
+message DposCBQuery {
+    int64  cycle      = 1;
+    int64  stopHeight = 2;
+    string stopHash   = 3;
+    int32  ty         = 4;
+}
+
+// DposCBReply cycle
+message DposCBReply {
+    DposCBInfo cbInfo = 1;
+}
+
+// ReceiptCB CycleBoundary
+message ReceiptCB {
+    int64                 Index       = 1;
+    bytes                 pubkey      = 2;
+    int64                 status      = 3;
+    int64                 cycle       = 4;
+    int64                 height      = 5;
+    int64                 time        = 6;
+    int64                 cycleStart  = 7;
+    int64                 cycleMiddle = 8;
+    int64                 cycleStop   = 9;
+    DposCycleBoundaryInfo cbInfo      = 10;
+}
+
+// TopNCandidator topN
+message TopNCandidator {
+    repeated Candidator cands        = 1;
+    bytes               hash         = 2;
+    int64               height       = 3;
+    bytes               signerPubkey = 4;
+    bytes               signature    = 5;
+}
+
+// TopNCandidators topN   (  )
+message TopNCandidators {
+    repeated TopNCandidator candsVotes = 1;
+    int64                   version    = 2;
+    int64                   status     = 3;
+    repeated Candidator finalCands     = 4;
+}
+
+// TopNCandidatorRegist topN
+message TopNCandidatorRegist {
+    TopNCandidator cand = 1;
+}
+
+// TopNCandidatorsQuery topN
+message TopNCandidatorsQuery {
+    int64 version = 1;
+}
+
+// TopNCandidatorsReply topN
+message TopNCandidatorsReply {
+    TopNCandidators topN = 1;
+}
+
+// ReceiptTopN topN
+message ReceiptTopN {
+    int64          Index   = 1;
+    bytes          pubkey  = 2;
+    int64          status  = 3;
+    int64          version = 4;
+    int64          height  = 5;
+    int64          time    = 6;
+    TopNCandidator topN    = 10;
+}

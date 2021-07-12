@@ -1,0 +1,183 @@
+Title="local"
+TestNet=true
+FixTime=false
+
+
+[log]
+#     ，  debug(dbug)/info/warn/error(eror)/crit
+loglevel = "debug"
+logConsoleLevel = "info"
+#      ，    ，
+logFile = "logs/dplatformos.log"
+#           （  ： ）
+maxFileSize = 300
+#
+maxBackups = 100
+#            （  ： ）
+maxAge = 28
+#              （    UTC  ）
+localTime = true
+#           （     gz）
+compress = true
+#
+callerFile = false
+#
+callerFunction = false
+
+[blockchain]
+defCacheSize=128
+maxFetchBlockNum=128
+timeoutSeconds=5
+batchBlockNum=128
+driver="memdb"
+dbPath="datadir"
+dbCache=64
+isStrongConsistency=false
+singleMode=true
+batchsync=false
+isRecordBlockSequence=true
+isParaChain=false
+enableTxQuickIndex=false
+
+[p2p]
+types=["dht"]
+enable=true
+msgCacheSize=10240
+driver="memdb"
+dbPath="datadir/addrbook"
+dbCache=4
+grpcLogFile="grpc.log"
+
+[rpc]
+jrpcBindAddr="localhost:0"
+grpcBindAddr="localhost:0"
+whitelist=["127.0.0.1"]
+jrpcFuncWhitelist=["*"]
+grpcFuncWhitelist=["*"]
+
+[mempool]
+name="timeline"
+poolCacheSize=10240
+minTxFeeRate=100000
+maxTxNumPerAccount=10000
+
+[consensus]
+name="ticket"
+minerstart=true
+genesisBlockTime=1514533394
+genesis="16ERTbYtKKQ64wMthAY9J4La4nAiidG45A"
+minerExecs=["ticket", "autonomy"]
+enableBestBlockCmp=true
+
+[mver.consensus]
+fundKeyAddr = "1CQXE6TxaYCG5mADtWij4AxhZCUTpoABb3"
+powLimitBits = "0x1f00ffff"
+maxTxNumber = 1600
+
+
+[mver.consensus.ForkChainParamV1]
+maxTxNumber = 10000
+
+[mver.consensus.ForkChainParamV2]
+powLimitBits = "0x2f2fffff"
+
+[mver.consensus.ForkTicketFundAddrV1]
+fundKeyAddr = "1Ji3W12KGScCM7C2p8bg635sNkayDM8MGY"
+
+[mver.consensus.ticket]
+coinReward = 18
+coinDevFund = 12
+ticketPrice = 10000
+retargetAdjustmentFactor = 4
+futureBlockTime = 16
+ticketFrozenTime = 5
+ticketWithdrawTime = 10
+ticketMinerWaitTime = 2
+targetTimespan = 2304
+targetTimePerBlock = 16
+
+[mver.consensus.ticket.ForkChainParamV1]
+targetTimespan = 288 #only for test
+targetTimePerBlock = 2
+
+[consensus.sub.solo]
+genesis="16ERTbYtKKQ64wMthAY9J4La4nAiidG45A"
+genesisBlockTime=1514533394
+waitTxMs=10
+
+[consensus.sub.ticket]
+genesisBlockTime=1514533394
+[[consensus.sub.ticket.genesis]]
+minerAddr="12oupcayRT7LvaC4qW4avxsTE7U41cKSio"
+returnAddr="16ERTbYtKKQ64wMthAY9J4La4nAiidG45A"
+count=3000
+
+[[consensus.sub.ticket.genesis]]
+minerAddr="1PUiGcbsccfxW3zuvHXZBJfznziph5miAo"
+returnAddr="1EbDHAXpoiewjPLX9uqoz38HsKqMXayZrF"
+count=100
+
+[[consensus.sub.ticket.genesis]]
+minerAddr="1EDnnePAZN48aC2hiTDzhkczfF39g1pZZX"
+returnAddr="1KcCVZLSQYRUwE5EXTsAoQs9LuJW6xwfQa"
+count=100
+
+[store]
+name="mavl"
+driver="memdb"
+dbPath="datadir/mavltree"
+dbCache=128
+
+[store.sub.mavl]
+enableMavlPrefix=false
+enableMVCC=false
+
+[wallet]
+minFee=100000
+driver="memdb"
+dbPath="wallet"
+dbCache=16
+signType="secp256k1"
+
+[wallet.sub.ticket]
+minerdisable=false
+minerwhitelist=["*"]
+minerWaitTime="1s"
+
+[exec]
+enableStat=false
+enableMVCC=false
+alias=["token1:token","token2:token","token3:token"]
+
+[exec.sub.token]
+saveTokenTxList=true
+tokenApprs = [
+	"1Bsg9j6gW83sShoee1fZAt9TkUjcrCgA9S",
+	"1Q8hGLfoGe63efeWa8fJ4Pnukhkngt6poK",
+	"1LY8GFia5EiyoTodMLfkB5PHNNpXRqxhyB",
+	"1GCzJDS6HbgTQ2emade7mEJGGWFfA15pS9",
+	"1JYB8sxi4He5pZWHCd3Zi2nypQ4JMB6AxN",
+	"12oupcayRT7LvaC4qW4avxsTE7U41cKSio",
+]
+
+[exec.sub.relay]
+genesis="16ERTbYtKKQ64wMthAY9J4La4nAiidG45A"
+
+[exec.sub.cert]
+#
+enable=false
+#
+cryptoPath="authdir/crypto"
+#        ，  "auth_ecdsa", "auth_sm2"
+signType="auth_ecdsa"
+
+[exec.sub.manage]
+superManager=[
+    "1Bsg9j6gW83sShoee1fZAt9TkUjcrCgA9S",
+    "12oupcayRT7LvaC4qW4avxsTE7U41cKSio",
+    "1Q8hGLfoGe63efeWa8fJ4Pnukhkngt6poK"
+]
+
+[exec.sub.autonomy]
+total="16jtvcERSEa7fZhAdLJuiDwEYQJaHpyOPy"
+useBalance=false

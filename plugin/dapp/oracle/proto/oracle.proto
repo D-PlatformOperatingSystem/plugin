@@ -1,0 +1,95 @@
+syntax = "proto3";
+
+package types;
+
+//
+message OracleStatus {
+    string      eventID      = 1;  //  ID
+    string      addr         = 2;  //
+    string      type         = 3;  //
+    string      subType      = 4;  //
+    int64       time         = 5;  //
+    string      content      = 6;  //
+    string      introduction = 7;  //
+    EventStatus status       = 8;  //
+    string      source       = 9;  //
+    string      result       = 10; //
+    EventStatus preStatus    = 11; //
+}
+
+// action
+message OracleAction {
+    oneof value {
+        EventPublish     eventPublish     = 1;
+        EventAbort       eventAbort       = 2;
+        ResultPrePublish resultPrePublish = 3;
+        ResultPublish    resultPublish    = 4;
+        ResultAbort      resultAbort      = 5;
+    }
+    int32 Ty = 7;
+}
+
+message EventStatus {
+    string opAddr = 1; //
+    int32  status = 2; //
+}
+
+message EventPublish {
+    string type         = 2; //
+    string subType      = 3; //
+    int64  time         = 4; //
+    string content      = 5; //
+    string introduction = 6; //
+}
+
+message EventAbort {
+    string eventID = 2; //     ID
+}
+
+message ResultPrePublish {
+    string eventID = 2; //     ID
+    string source  = 3; //
+    string result  = 4; //
+}
+
+message ResultPublish {
+    string eventID = 2; //     ID
+    string source  = 3; //
+    string result  = 4; //
+}
+
+message ResultAbort {
+    string eventID = 2; //     ID
+}
+
+// localDB
+message EventRecord {
+    string eventID = 1; //      ID
+}
+
+message QueryOracleInfos {
+    repeated string eventID = 1; //      ID
+}
+
+message ReplyEventIDs {
+    repeated string eventID = 1; //     ID
+}
+
+message QueryEventID {
+    int32  status  = 1; //
+    string addr    = 2; //
+    string type    = 3; //
+    string eventID = 4; //  ID
+}
+
+message ReceiptOracle {
+    string eventID   = 1; //    ID
+    int32  status    = 2; //
+    string addr      = 3; //
+    string type      = 4; //
+    int32  preStatus = 6; //
+}
+
+message ReplyOracleStatusList {
+    repeated OracleStatus status = 1; //
+}

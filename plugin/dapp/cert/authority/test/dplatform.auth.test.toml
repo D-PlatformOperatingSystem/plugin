@@ -1,0 +1,88 @@
+Title="dplatformos"
+
+[log]
+#     ，  debug(dbug)/info/warn/error(eror)/crit
+loglevel = "debug"
+logConsoleLevel = "info"
+#      ，    ，
+logFile = "logs/dplatformos.log"
+#           （  ： ）
+maxFileSize = 20
+#
+maxBackups = 20
+#            （  ： ）
+maxAge = 28
+#              （    UTC  ）
+localTime = true
+#           （     gz）
+compress = false
+#
+callerFile = true
+#
+callerFunction = true
+
+[blockchain]
+defCacheSize=512
+maxFetchBlockNum=128
+timeoutSeconds=5
+batchBlockNum=128
+driver="memdb"
+dbPath="datadir"
+dbCache=64
+isStrongConsistency=false
+singleMode=true
+batchsync=false
+isRecordBlockSequence=true
+
+[p2p]
+types=["dht"]
+enable=true
+msgCacheSize=10240
+driver="memdb"
+dbPath="datadir/addrbook"
+dbCache=4
+grpcLogFile="grpc.log"
+
+
+[rpc]
+jrpcBindAddr="localhost:28803"
+grpcBindAddr="localhost:28804"
+whitelist=["127.0.0.1"]
+jrpcFuncWhitelist=["*"]
+grpcFuncWhitelist=["*"]
+
+[mempool]
+poolCacheSize=10240
+minTxFeeRate=0
+
+[consensus]
+name="solo"
+minerstart=true
+genesis="16ABEbYtKKQm5wMuySK9J4La5nAiidGuyt"
+genesisBlockTime=1514533394
+hotkeyAddr="12oupcayRT7LvaC4qW4avxsTE7U41cKSio"
+
+[store]
+name="mavl"
+driver="memdb"
+dbPath="datadir/mavltree"
+dbCache=128
+
+[wallet]
+minFee=1000000
+driver="memdb"
+dbPath="datadir/wallet"
+dbCache=16
+signType="secp256k1"
+minerwhitelist=["*"]
+
+[exec]
+enableStat=false
+
+[exec.sub.cert]
+#
+enable=true
+#
+cryptoPath="./test/authdir/crypto"
+#        ，  "auth_ecdsa", "auth_sm2"
+signType="auth_sm2"

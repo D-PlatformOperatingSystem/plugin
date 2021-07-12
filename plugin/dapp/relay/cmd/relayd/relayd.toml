@@ -1,0 +1,64 @@
+title = "relayd"
+
+trace = false
+Tick33 =60
+TickBTC = 30
+firstBtcHeight = 10
+# 0：btcd ; 1:btcdweb
+btcdOrWeb = 0
+syncSetup = 100
+syncSetupCount = 10
+
+[auth]
+# test private key 1G5Cjy8LuQex2fuYv3gzb7B8MxAnxLEqt3
+privateKey = "22968d29c6de695381a8719ef7bf00e2edb6cce500bb59a4fc73c41887610962"
+publicKey = ""
+address = ""
+
+[dplatformos]
+id = "dplatformos"
+host = "dplatformos:28804"
+user = ""
+pass = ""
+disableAutoReconnect = true
+reconnectAttempts = 10
+
+[btcd]
+id = "bitcoin"
+host = "btcd:18556"
+endpoint = "ws"
+user = "root"
+pass = "1314"
+disableTLS = false
+certPath = "/root"
+proxy = ""
+proxyUser = ""
+proxyPass = ""
+disableAutoReconnect = true
+disableConnectOnNew = false
+# exchange protocol wss and https
+HTTPPostMode = false
+enableBCInfoHacks = false
+reconnectAttempts = 10
+
+[log]
+#     ，  debug(dbug)/info/warn/error(eror)/crit
+loglevel = "debug"
+logConsoleLevel = "debug"
+#      ，    ，
+logFile = "logs/relayd.log"
+#           （  ： ）
+maxFileSize = 100
+#
+maxBackups = 50
+#            （  ： ）
+maxAge = 28
+#              （    UTC  ）
+localTime = true
+#           （     gz）
+compress = true
+#
+callerFile = false
+#
+callerFunction = false
+

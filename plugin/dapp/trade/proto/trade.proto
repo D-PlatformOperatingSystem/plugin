@@ -1,0 +1,333 @@
+syntax = "proto3";
+
+import "transaction.proto";
+
+package types;
+
+// trade
+//
+message Trade {
+    oneof value {
+        TradeForSell       sellLimit  = 1;
+        TradeForBuy        buyMarket  = 2;
+        TradeForRevokeSell revokeSell = 3;
+        TradeForBuyLimit   buyLimit   = 5;
+        TradeForSellMarket sellMarket = 6;
+        TradeForRevokeBuy  revokeBuy  = 7;
+    }
+    int32 ty = 4;
+}
+
+//       ,       token   ，          token
+message TradeForSell {
+    string tokenSymbol = 1;
+    //       token
+    int64 amountPerBoardlot = 2;
+    //     ,
+    int64 minBoardlot = 3;
+    //    token
+    int64 pricePerBoardlot = 4;
+    int64 totalBoardlot    = 5;
+    //          ，
+    int64 starttime = 6;
+    int64 stoptime  = 7;
+    bool  crowdfund = 8;
+    //
+    string assetExec = 9;
+    //
+    string priceExec   = 10;
+    string priceSymbol = 11;
+}
+
+//            token          token
+//    hash token          hash
+message TradeForBuy {
+    string sellID      = 1;
+    int64  boardlotCnt = 2;
+}
+
+//   token             token
+message TradeForRevokeSell {
+    string sellID = 1;
+}
+
+//
+message TradeForBuyLimit {
+    string tokenSymbol       = 1;
+    int64  amountPerBoardlot = 2;
+    int64  minBoardlot       = 3;
+    int64  pricePerBoardlot  = 4;
+    int64  totalBoardlot     = 5;
+    string assetExec         = 6;
+    //
+    string priceExec   = 7;
+    string priceSymbol = 8;
+}
+
+//
+message TradeForSellMarket {
+    string buyID       = 1;
+    int64  boardlotCnt = 2;
+}
+
+//
+message TradeForRevokeBuy {
+    string buyID = 1;
+}
+
+//
+message SellOrder {
+    string tokenSymbol = 1;
+    string address     = 2;
+    //      token
+    int64 amountPerBoardlot = 3;
+    int64 minBoardlot       = 4;
+    //   token
+    int64 pricePerBoardlot = 5;
+    int64 totalBoardlot    = 6;
+    int64 soldBoardlot     = 7;
+    //         ，
+    int64 starttime = 8;
+    int64 stoptime  = 9;
+    bool  crowdfund = 10;
+    //    tx hash
+    string sellID      = 11;
+    int32  status      = 12;
+    int64  height      = 13;
+    string assetExec   = 14;
+    string priceExec   = 15;
+    string priceSymbol = 16;
+}
+
+//
+message BuyLimitOrder {
+    string tokenSymbol       = 1;
+    string address           = 2;
+    int64  amountPerBoardlot = 3;
+    int64  minBoardlot       = 4;
+    int64  pricePerBoardlot  = 5;
+    int64  totalBoardlot     = 6;
+    int64  boughtBoardlot    = 7;
+    string buyID             = 8;
+    int32  status            = 9;
+    int64  height            = 10;
+    string assetExec         = 11;
+    string priceExec         = 12;
+    string priceSymbol       = 13;
+}
+
+//
+message ReceiptBuyBase {
+    string tokenSymbol       = 1;
+    string owner             = 2;
+    string amountPerBoardlot = 3;
+    int64  minBoardlot       = 4;
+    string pricePerBoardlot  = 5;
+    int64  totalBoardlot     = 6;
+    int64  boughtBoardlot    = 7;
+    string buyID             = 8;
+    string status            = 9;
+    string sellID            = 10;
+    string txHash            = 11;
+    int64  height            = 12;
+    string assetExec         = 13;
+    string priceExec         = 14;
+    string priceSymbol       = 15;
+}
+
+message ReceiptSellBase {
+    string tokenSymbol = 1;
+    string owner       = 2;
+    //      token
+    string amountPerBoardlot = 3;
+    int64  minBoardlot       = 4;
+    //   token
+    string pricePerBoardlot = 5;
+    int64  totalBoardlot    = 6;
+    int64  soldBoardlot     = 7;
+    //         ，
+    int64 starttime = 8;
+    int64 stoptime  = 9;
+    bool  crowdfund = 10;
+    //    tx hash
+    string sellID = 11;
+    string status = 12;
+    // buyid
+    string buyID       = 13;
+    string txHash      = 14;
+    int64  height      = 15;
+    string assetExec   = 16;
+    string priceExec   = 17;
+    string priceSymbol = 18;
+}
+
+message ReceiptTradeBuyMarket {
+    ReceiptBuyBase base = 1;
+}
+
+message ReceiptTradeBuyLimit {
+    ReceiptBuyBase base = 1;
+}
+
+message ReceiptTradeBuyRevoke {
+    ReceiptBuyBase base = 1;
+}
+
+message ReceiptTradeSellLimit {
+    ReceiptSellBase base = 1;
+}
+
+message ReceiptSellMarket {
+    ReceiptSellBase base = 1;
+}
+
+message ReceiptTradeSellRevoke {
+    ReceiptSellBase base = 1;
+}
+
+//
+
+message ReqAddrAssets {
+    string addr   = 1;
+    int32  status = 2;
+    // ??
+    repeated string token     = 3;
+    int32           direction = 4;
+    int32           count     = 5;
+    string          fromKey   = 6;
+}
+
+//   Token
+// 	 fromKey :        ，           。         ，
+//         ；        ，        。 	 count
+// :         。 	 direction :    ；0，   ；1，   。
+//
+message ReqTokenSellOrder {
+    string tokenSymbol = 1;
+    string fromKey     = 2;
+    int32  count       = 3;
+    int32  direction   = 4;
+    int32  status      = 5;
+}
+
+message ReqTokenBuyOrder {
+    string tokenSymbol = 1;
+    string fromKey     = 2;
+    int32  count       = 3;
+    int32  direction   = 4;
+    int32  status      = 5;
+}
+
+message ReplyBuyOrder {
+    string tokenSymbol       = 1;
+    string owner             = 2;
+    int64  amountPerBoardlot = 3;
+    int64  minBoardlot       = 4;
+    int64  pricePerBoardlot  = 5;
+    int64  totalBoardlot     = 6;
+    int64  boughtBoardlot    = 7;
+    string buyID             = 8;
+    int32  status            = 9;
+    string sellID            = 10;
+    string txHash            = 11;
+    int64  height            = 12;
+    string key               = 13;
+    string assetExec         = 14;
+}
+
+message ReplySellOrder {
+    string tokenSymbol       = 1;
+    string owner             = 2;
+    int64  amountPerBoardlot = 3;
+    int64  minBoardlot       = 4;
+    int64  pricePerBoardlot  = 5;
+    int64  totalBoardlot     = 6;
+    int64  soldBoardlot      = 7;
+    string buyID             = 8;
+    int32  status            = 9;
+    string sellID            = 10;
+    string txHash            = 11;
+    int64  height            = 12;
+    string key               = 13;
+    string assetExec         = 14;
+}
+
+message ReplySellOrders {
+    repeated ReplySellOrder sellOrders = 1;
+}
+
+message ReplyBuyOrders {
+    repeated ReplyBuyOrder buyOrders = 1;
+}
+
+message ReplyTradeOrder {
+    string tokenSymbol       = 1;
+    string owner             = 2;
+    int64  amountPerBoardlot = 3;
+    int64  minBoardlot       = 4;
+    int64  pricePerBoardlot  = 5;
+    int64  totalBoardlot     = 6;
+    int64  tradedBoardlot    = 7;
+    string buyID             = 8;
+    int32  status            = 9;
+    string sellID            = 10;
+    string txHash            = 11;
+    int64  height            = 12;
+    string key               = 13;
+    int64  blockTime         = 14;
+    bool   isSellOrder       = 15;
+    string assetExec         = 16;
+    string priceExec         = 17;
+    string priceSymbol       = 18;
+}
+
+message ReplyTradeOrders {
+    repeated ReplyTradeOrder orders = 1;
+}
+
+message ReqSellToken {
+    TradeForSell sell  = 1;
+    string       owner = 2;
+}
+
+message ReqRevokeSell {
+    TradeForRevokeSell revoke = 1;
+    string             owner  = 2;
+}
+
+message ReqBuyToken {
+    TradeForBuy buy   = 1;
+    string      buyer = 2;
+}
+
+message LocalOrder {
+    string   assetSymbol        = 1;
+    string   owner              = 2;
+    int64    amountPerBoardlot  = 3;
+    int64    minBoardlot        = 4;
+    int64    pricePerBoardlot   = 5;
+    int64    totalBoardlot      = 6;
+    int64    tradedBoardlot     = 7;
+    string   buyID              = 8;
+    int32    status             = 9;
+    string   sellID             = 10;
+    repeated string txHash      = 11;
+    int64           height      = 12;
+    string          key         = 13;
+    int64           blockTime   = 14;
+    bool            isSellOrder = 15;
+    string          assetExec   = 16;
+    string          txIndex     = 17;
+    bool            isFinished  = 18;
+    string          priceExec   = 19;
+    string          priceSymbol = 20;
+}
+
+service trade {
+    rpc CreateRawTradeSellTx(TradeForSell) returns (UnsignTx) {}
+    rpc CreateRawTradeBuyTx(TradeForBuy) returns (UnsignTx) {}
+    rpc CreateRawTradeRevokeTx(TradeForRevokeSell) returns (UnsignTx) {}
+    rpc CreateRawTradeBuyLimitTx(TradeForBuyLimit) returns (UnsignTx) {}
+    rpc CreateRawTradeSellMarketTx(TradeForSellMarket) returns (UnsignTx) {}
+    rpc CreateRawTradeRevokeBuyTx(TradeForRevokeBuy) returns (UnsignTx) {}
+}
